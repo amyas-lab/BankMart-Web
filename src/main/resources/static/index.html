@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BankMart Catalog</title>
+    <style>
+        :root {
+            --primary: #004d99;
+            --secondary: #e6f0fa;
+            --text-dark: #333333;
+            --text-light: #666666;
+            --background: #f8fafc;
+            --white: #ffffff;
+            --accent: #2e8b57;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--background);
+            color: var(--text-dark);
+        }
+
+        header {
+            background-color: var(--primary);
+            color: var(--white);
+            padding: 1.5rem 2rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-title {
+            margin: 0;
+            font-size: 1.8rem;
+            font-weight: 600;
+        }
+
+        .search-container {
+            display: flex;
+            gap: 10px;
+        }
+
+        .search-input {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 4px;
+            font-size: 1rem;
+            width: 250px;
+        }
+
+        .search-btn {
+            padding: 0.5rem 1rem;
+            background-color: var(--white);
+            color: var(--primary);
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.2s;
+        }
+
+        .search-btn:hover {
+            background-color: var(--secondary);
+        }
+
+        main {
+            padding: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .container-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 2rem;
+        }
+
+        .product-card {
+            background: var(--white);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            transition: transform 0.2s, box-shadow 0.2s;
+            border-top: 5px solid var(--primary);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px rgba(0,0,0,0.1);
+        }
+
+        .product-content {
+            padding: 1.5rem;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .category-badge {
+            align-self: flex-start;
+            background-color: var(--secondary);
+            color: var(--primary);
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .product-title {
+            margin: 0 0 0.5rem 0;
+            font-size: 1.3rem;
+            color: var(--text-dark);
+        }
+
+        .product-desc {
+            color: var(--text-light);
+            font-size: 0.95rem;
+            line-height: 1.5;
+            flex-grow: 1;
+            margin-bottom: 1.5rem;
+        }
+
+        .product-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 1rem;
+            border-top: 1px solid #edf2f7;
+        }
+
+        .price {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--accent);
+        }
+
+        .stock-info {
+            font-size: 0.85rem;
+            color: var(--text-light);
+        }
+
+        .error-message {
+            background-color: #fee2e2;
+            color: #b91c1c;
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: center;
+            grid-column: 1 / -1;
+        }
+
+        .loader {
+            text-align: center;
+            grid-column: 1 / -1;
+            padding: 3rem;
+            color: var(--text-light);
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1 class="header-title">BankMart</h1>
+        <div class="search-container">
+            <input type="text" id="searchInput" class="search-input" placeholder="Search accounts, loans, cards..." onkeypress="handleKeyPress(event)">
+            <button class="search-btn" onclick="searchProducts()">Search</button>
+        </div>
+    </header>
+
+    <main>
+        <div class="container-header">
+            <h2 id="sectionTitle">All Products</h2>
+            <button onclick="loadProducts()" style="background:none;border:none;color:var(--primary);cursor:pointer;text-decoration:underline;">View All</button>
+        </div>
+        
+        <div id="productGrid" class="product-grid">
+            <div class="loader">Loading products from BankMart systems...</div>
+        </div>
+    </main>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:8080/api';
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadProducts();
+        });
+
+        function handleKeyPress(e) {
+            if (e.key === 'Enter') {
+                searchProducts();
+            }
+        }
+
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('en-AU', {
+                style: 'currency',
+                currency: 'AUD'
+            }).format(amount);
+        }
+
+        function renderProducts(products) {
+            const grid = document.getElementById('productGrid');
+            grid.innerHTML = '';
+
+            if (products.length === 0) {
+                grid.innerHTML = '<div class="loader">No products found matching your search.</div>';
+                return;
+            }
+
+            products.forEach(product => {
+                const card = document.createElement('div');
+                card.className = 'product-card';
+                card.innerHTML = `
+                    <div class="product-content">
+                        <span class="category-badge">${product.category}</span>
+                        <h3 class="product-title">${product.name}</h3>
+                        <p class="product-desc">${product.description}</p>
+                        
+                        <div class="product-footer">
+                            <div class="price">${product.price > 0 ? formatCurrency(product.price) : 'No Fee'}</div>
+                            <div class="stock-info">Inst: ${product.stockQuantity}</div>
+                        </div>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function loadProducts() {
+            document.getElementById('sectionTitle').textContent = 'All Products';
+            document.getElementById('searchInput').value = '';
+            document.getElementById('productGrid').innerHTML = '<div class="loader">Loading products from BankMart systems...</div>';
+            
+            fetch(`${API_BASE_URL}/products`)
+                .then(response => {
+                    if (!response.ok) throw new Error('Network response was not ok');
+                    return response.json();
+                })
+                .then(data => renderProducts(data))
+                .catch(error => {
+                    console.error('Error fetching products:', error);
+                    document.getElementById('productGrid').innerHTML = 
+                        '<div class="error-message">Error connecting to the BankMart API. Please ensure the backend is running on localhost:8080.</div>';
+                });
+        }
+
+        function searchProducts() {
+            const keyword = document.getElementById('searchInput').value.trim();
+            
+            if (!keyword) {
+                loadProducts();
+                return;
+            }
+
+            document.getElementById('sectionTitle').textContent = `Search Results for "${keyword}"`;
+            document.getElementById('productGrid').innerHTML = '<div class="loader">Searching...</div>';
+
+            fetch(`${API_BASE_URL}/products/search?keyword=${encodeURIComponent(keyword)}`)
+                .then(response => {
+                    if (!response.ok) throw new Error('Network response was not ok');
+                    return response.json();
+                })
+                .then(data => renderProducts(data))
+                .catch(error => {
+                    console.error('Error searching products:', error);
+                    document.getElementById('productGrid').innerHTML = 
+                        '<div class="error-message">Error executing search. Ensure the backend is running.</div>';
+                });
+        }
+    </script>
+</body>
+</html>
