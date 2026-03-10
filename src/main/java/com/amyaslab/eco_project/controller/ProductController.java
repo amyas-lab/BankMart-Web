@@ -27,10 +27,9 @@ public class ProductController {
 
     @GetMapping("/product/{id}")
     public ResponseEntity<Product> getProduct(@PathVariable int id) {
-
         Product product = service.getProductById(id);
         if (product != null)
-            return new ResponseEntity<>(service.getProductById(id), HttpStatus.OK);
+            return new ResponseEntity<>(product, HttpStatus.OK);
         else
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
@@ -59,7 +58,7 @@ public class ProductController {
     }
     @PutMapping("/product/{id}")
     public ResponseEntity<String> updateProduct(@PathVariable int id, @RequestPart Product product,
-                                                @RequestPart MultipartFile imageFile) {
+                                                @RequestPart(required = false) MultipartFile imageFile) {
         Product product1 = null;
         try {
             product1 = service.updateProduct(id, product, imageFile);
@@ -80,9 +79,9 @@ public class ProductController {
         } else
             return new ResponseEntity<>("Product not found", HttpStatus.NOT_FOUND);
     }
-    @GetMapping("/products/search{keyword}")
-    public ResponseEntity<List<Product>> searchProducts(String keyword) {
-        System.out.println("searching with" + keyword);
+    @GetMapping("/products/search")
+    public ResponseEntity<List<Product>> searchProducts(@RequestParam String keyword) {
+        System.out.println("searching with: " + keyword);
         List<Product> products = service.searchProducts(keyword);
         return new ResponseEntity<>(products, HttpStatus.OK);
 

@@ -29,9 +29,19 @@ public class ProductService {
         return repo.save(product);}
 
     public Product updateProduct(int id, Product product, MultipartFile imageFile) throws IOException {
-        product.setImageData(imageFile.getBytes());
-        product.setImageName(imageFile.getOriginalFilename());
-        product.setImageType(imageFile.getContentType());
+        if (imageFile != null && !imageFile.isEmpty()) {
+            product.setImageData(imageFile.getBytes());
+            product.setImageName(imageFile.getOriginalFilename());
+            product.setImageType(imageFile.getContentType());
+        } else {
+            // Keep original image data by fetching the existing product
+            Product existingProduct = repo.findById(id).orElse(null);
+            if (existingProduct != null) {
+                product.setImageData(existingProduct.getImageData());
+                product.setImageName(existingProduct.getImageName());
+                product.setImageType(existingProduct.getImageType());
+            }
+        }
         return repo.save(product);
     }
 
