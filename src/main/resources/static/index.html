@@ -3,8 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BankMart Catalog</title>
+    <title>BankMart — Financial Product Catalog</title>
     <style>
+        /* ============================================================
+           DESIGN TOKENS — These are the "global variables" for colors,
+           fonts etc. Change one here and it updates the whole page.
+        ============================================================ */
         :root {
             --primary: #004d99;
             --secondary: #e6f0fa;
@@ -13,16 +17,23 @@
             --background: #f8fafc;
             --white: #ffffff;
             --accent: #2e8b57;
+            --danger: #b91c1c;
         }
 
+        /* ============================================================
+           BASE STYLES
+        ============================================================ */
+        * { box-sizing: border-box; }
         body {
             font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-            margin: 0;
-            padding: 0;
+            margin: 0; padding: 0;
             background-color: var(--background);
             color: var(--text-dark);
         }
 
+        /* ============================================================
+           HEADER — Top navigation bar with search
+        ============================================================ */
         header {
             background-color: var(--primary);
             color: var(--white);
@@ -31,48 +42,69 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
         }
-
-        .header-title {
-            margin: 0;
-            font-size: 1.8rem;
-            font-weight: 600;
+        .header-title { margin: 0; font-size: 1.8rem; font-weight: 600; }
+        .header-nav a {
+            color: rgba(255,255,255,0.8);
+            text-decoration: none;
+            margin-left: 1.5rem;
+            font-size: 0.9rem;
+            transition: color 0.2s;
         }
-
-        .search-container {
-            display: flex;
-            gap: 10px;
-        }
-
+        .header-nav a:hover { color: var(--white); }
+        .search-container { display: flex; gap: 10px; }
         .search-input {
             padding: 0.5rem 1rem;
-            border: none;
-            border-radius: 4px;
-            font-size: 1rem;
-            width: 250px;
+            border: none; border-radius: 4px;
+            font-size: 1rem; width: 250px;
         }
-
         .search-btn {
             padding: 0.5rem 1rem;
             background-color: var(--white);
             color: var(--primary);
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-weight: bold;
+            border: none; border-radius: 4px;
+            cursor: pointer; font-weight: bold;
             transition: background-color 0.2s;
         }
+        .search-btn:hover { background-color: var(--secondary); }
 
-        .search-btn:hover {
-            background-color: var(--secondary);
+        /* ============================================================
+           CATEGORY FILTER TABS — Buttons to filter by product category
+        ============================================================ */
+        .filter-bar {
+            background-color: var(--white);
+            padding: 1rem 2rem;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+            max-width: 100%;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        .filter-btn {
+            padding: 0.4rem 1rem;
+            border: 2px solid #cbd5e0;
+            border-radius: 20px;
+            background: transparent;
+            color: var(--text-light);
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        .filter-btn:hover { border-color: var(--primary); color: var(--primary); }
+        .filter-btn.active {
+            background-color: var(--primary);
+            border-color: var(--primary);
+            color: var(--white);
         }
 
-        main {
-            padding: 2rem;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-
+        /* ============================================================
+           MAIN CONTENT AREA
+        ============================================================ */
+        main { padding: 2rem; max-width: 1200px; margin: 0 auto; }
         .container-header {
             display: flex;
             justify-content: space-between;
@@ -80,12 +112,14 @@
             margin-bottom: 2rem;
         }
 
+        /* ============================================================
+           PRODUCT GRID — Responsive card layout
+        ============================================================ */
         .product-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
             gap: 2rem;
         }
-
         .product-card {
             background: var(--white);
             border-radius: 12px;
@@ -96,193 +130,752 @@
             display: flex;
             flex-direction: column;
         }
-
         .product-card:hover {
             transform: translateY(-5px);
             box-shadow: 0 10px 15px rgba(0,0,0,0.1);
         }
-
         .product-content {
             padding: 1.5rem;
             flex-grow: 1;
             display: flex;
             flex-direction: column;
         }
-
         .category-badge {
             align-self: flex-start;
             background-color: var(--secondary);
             color: var(--primary);
             padding: 0.3rem 0.8rem;
             border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: 600;
+            font-size: 0.8rem; font-weight: 600;
             margin-bottom: 1rem;
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
+        .product-title { margin: 0 0 0.5rem 0; font-size: 1.3rem; color: var(--text-dark); }
+        .product-desc {
+            color: var(--text-light); font-size: 0.95rem;
+            line-height: 1.5; flex-grow: 1; margin-bottom: 1rem;
+        }
+        .product-footer {
+            display: flex; justify-content: space-between; align-items: center;
+            padding-top: 1rem; border-top: 1px solid #edf2f7;
+            margin-bottom: 1rem;
+        }
+        .price { font-size: 1.4rem; font-weight: 700; color: var(--accent); }
+        .stock-info { font-size: 0.85rem; color: var(--text-light); }
 
-        .product-title {
-            margin: 0 0 0.5rem 0;
-            font-size: 1.3rem;
-            color: var(--text-dark);
+        /* Card action buttons */
+        .card-actions { display: flex; gap: 0.5rem; }
+        .btn-details, .btn-apply {
+            flex: 1; padding: 0.6rem 0.5rem;
+            border: none; border-radius: 6px;
+            cursor: pointer; font-weight: 600; font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+        .btn-details {
+            background-color: var(--secondary);
+            color: var(--primary);
+        }
+        .btn-details:hover { background-color: #cce0f5; }
+        .btn-apply {
+            background-color: var(--primary);
+            color: var(--white);
+        }
+        .btn-apply:hover { background-color: #003d7a; }
+
+        /* Compare checkbox */
+        .compare-row {
+            display: flex; align-items: center; gap: 0.5rem;
+            padding: 0.5rem 1.5rem;
+            border-top: 1px solid #edf2f7;
+            font-size: 0.85rem; color: var(--text-light);
+        }
+        .compare-row input { cursor: pointer; }
+
+        /* Status indicators */
+        .error-message {
+            background-color: #fee2e2; color: var(--danger);
+            padding: 1rem; border-radius: 8px;
+            text-align: center; grid-column: 1 / -1;
+        }
+        .loader {
+            text-align: center; grid-column: 1 / -1;
+            padding: 3rem; color: var(--text-light); font-style: italic;
         }
 
-        .product-desc {
-            color: var(--text-light);
-            font-size: 0.95rem;
-            line-height: 1.5;
-            flex-grow: 1;
+        /* ============================================================
+           COMPARE BAR — Floating bar at the bottom when items selected
+        ============================================================ */
+        .compare-bar {
+            display: none;
+            position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%);
+            background-color: var(--primary); color: var(--white);
+            padding: 1rem 2rem; border-radius: 30px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+            gap: 1rem; align-items: center; z-index: 500;
+        }
+        .compare-bar.visible { display: flex; }
+        .compare-bar button {
+            padding: 0.5rem 1.5rem;
+            border: 2px solid var(--white);
+            background: transparent; color: var(--white);
+            border-radius: 20px; cursor: pointer;
+            font-weight: bold; transition: all 0.2s;
+        }
+        .compare-bar button:hover { background: var(--white); color: var(--primary); }
+
+        /* ============================================================
+           MODAL BASE — Reused by Product Detail, Apply Form, Compare
+        ============================================================ */
+        .modal-overlay {
+            display: none; position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000; justify-content: center; align-items: center;
+            padding: 1rem;
+        }
+        .modal-overlay.open { display: flex; }
+        .modal {
+            background-color: var(--white);
+            padding: 2rem; border-radius: 12px;
+            width: 100%; max-width: 550px;
+            max-height: 90vh; overflow-y: auto;
+            box-shadow: 0 20px 25px rgba(0, 0, 0, 0.15);
+        }
+        .modal-wide { max-width: 860px; }
+        .modal-header {
+            display: flex; justify-content: space-between;
+            align-items: center; margin-bottom: 1.5rem;
+        }
+        .modal-title { margin: 0; font-size: 1.5rem; color: var(--primary); }
+        .close-btn {
+            background: none; border: none;
+            font-size: 1.8rem; cursor: pointer;
+            color: var(--text-light); line-height: 1;
+        }
+
+        /* ============================================================
+           PRODUCT DETAIL MODAL CONTENT
+        ============================================================ */
+        .detail-grid {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;
             margin-bottom: 1.5rem;
         }
+        .detail-item label { display: block; font-size: 0.8rem; color: var(--text-light); font-weight: 600; margin-bottom: 0.25rem; text-transform: uppercase; }
+        .detail-item span { font-size: 1rem; color: var(--text-dark); font-weight: 500; }
+        .detail-price { font-size: 1.6rem !important; color: var(--accent) !important; font-weight: 700 !important; }
 
-        .product-footer {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding-top: 1rem;
-            border-top: 1px solid #edf2f7;
+        /* Loan Calculator inside detail modal */
+        .loan-calculator {
+            background: var(--secondary);
+            border-radius: 8px; padding: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        .loan-calculator h4 { margin: 0 0 0.75rem 0; color: var(--primary); }
+        .calc-row { display: flex; gap: 1rem; align-items: flex-end; flex-wrap: wrap; }
+        .calc-row .form-group { flex: 1; min-width: 100px; }
+        .calc-result {
+            background: var(--white);
+            padding: 0.75rem; border-radius: 6px;
+            text-align: center; margin-top: 0.75rem;
+            font-size: 1.1rem; color: var(--text-dark);
+        }
+        .calc-result strong { color: var(--accent); font-size: 1.4rem; }
+
+        /* ============================================================
+           APPLICATION FORM MODAL
+        ============================================================ */
+        .eligibility-step { margin-bottom: 1.5rem; }
+        .eligibility-step h4 { margin: 0 0 1rem 0; color: var(--text-dark); }
+        .eligibility-opt {
+            display: flex; gap: 1rem; flex-wrap: wrap;
+        }
+        .eligibility-opt label {
+            display: flex; align-items: center; gap: 0.5rem;
+            cursor: pointer; padding: 0.5rem 1rem;
+            border: 2px solid #cbd5e0; border-radius: 8px;
+            font-weight: 500; transition: all 0.2s;
+        }
+        .eligibility-opt input:checked + span { color: var(--primary); }
+        .eligibility-opt label:has(input:checked) { border-color: var(--primary); background: var(--secondary); }
+
+        .ineligible-msg {
+            background: #fee2e2; color: var(--danger);
+            padding: 1rem; border-radius: 8px; margin-top: 1rem;
+        }
+        #product-context {
+            font-size: 0.9rem; color: var(--text-light);
+            margin-bottom: 1rem; padding: 0.5rem;
+            background-color: var(--secondary); border-radius: 4px;
         }
 
-        .price {
-            font-size: 1.4rem;
-            font-weight: 700;
-            color: var(--accent);
+        .form-group { margin-bottom: 1rem; }
+        .form-group label {
+            display: block; margin-bottom: 0.5rem;
+            font-weight: 600; color: var(--text-dark);
         }
+        .form-group input, .form-group select {
+            width: 100%; padding: 0.75rem;
+            border: 1px solid #cbd5e0; border-radius: 6px;
+            font-size: 1rem;
+        }
+        .submit-btn {
+            width: 100%; padding: 1rem;
+            background-color: var(--accent); color: var(--white);
+            border: none; border-radius: 6px;
+            font-size: 1.1rem; font-weight: bold;
+            cursor: pointer; margin-top: 1rem; transition: background-color 0.2s;
+        }
+        .submit-btn:hover { background-color: #237045; }
+        .submit-btn:disabled { opacity: 0.6; cursor: not-allowed; }
 
-        .stock-info {
-            font-size: 0.85rem;
-            color: var(--text-light);
+        /* ============================================================
+           COMPARISON TABLE MODAL
+        ============================================================ */
+        .compare-table { width: 100%; border-collapse: collapse; }
+        .compare-table th, .compare-table td {
+            border: 1px solid #e2e8f0;
+            padding: 0.75rem 1rem;
+            text-align: left;
         }
-
-        .error-message {
-            background-color: #fee2e2;
-            color: #b91c1c;
-            padding: 1rem;
-            border-radius: 8px;
-            text-align: center;
-            grid-column: 1 / -1;
-        }
-
-        .loader {
-            text-align: center;
-            grid-column: 1 / -1;
-            padding: 3rem;
-            color: var(--text-light);
-            font-style: italic;
-        }
+        .compare-table th { background: var(--secondary); color: var(--primary); font-weight: 700; }
+        .compare-table tr:nth-child(even) td { background-color: #f8fafc; }
     </style>
 </head>
 <body>
 
+    <!-- ============================================================
+         HEADER: The top bar. Contains the brand name, nav links,
+         and a search box.
+    ============================================================ -->
     <header>
-        <h1 class="header-title">BankMart</h1>
+        <h1 class="header-title">🏦 BankMart</h1>
+        <nav class="header-nav">
+            <a href="/index.html">Products</a>
+            <a href="/status.html">My Applications</a>
+            <a href="/admin.html">Admin</a>
+        </nav>
         <div class="search-container">
-            <input type="text" id="searchInput" class="search-input" placeholder="Search accounts, loans, cards..." onkeypress="handleKeyPress(event)">
+            <input type="text" id="searchInput" class="search-input"
+                   placeholder="Search products..." onkeypress="handleKeyPress(event)">
             <button class="search-btn" onclick="searchProducts()">Search</button>
         </div>
     </header>
 
+    <!-- ============================================================
+         FILTER BAR: Category buttons. Clicking one filters the grid.
+         "All" shows everything, the rest show only that category.
+    ============================================================ -->
+    <div class="filter-bar">
+        <button class="filter-btn active" onclick="filterByCategory('All', this)">All</button>
+        <button class="filter-btn" onclick="filterByCategory('Accounts', this)">Accounts</button>
+        <button class="filter-btn" onclick="filterByCategory('Savings', this)">Savings</button>
+        <button class="filter-btn" onclick="filterByCategory('Cards', this)">Cards</button>
+        <button class="filter-btn" onclick="filterByCategory('Loans', this)">Loans</button>
+        <button class="filter-btn" onclick="filterByCategory('Insurance', this)">Insurance</button>
+        <button class="filter-btn" onclick="filterByCategory('Investments', this)">Investments</button>
+    </div>
+
     <main>
         <div class="container-header">
             <h2 id="sectionTitle">All Products</h2>
-            <button onclick="loadProducts()" style="background:none;border:none;color:var(--primary);cursor:pointer;text-decoration:underline;">View All</button>
+            <span id="productCount" style="color: var(--text-light); font-size:0.9rem;"></span>
         </div>
-        
         <div id="productGrid" class="product-grid">
             <div class="loader">Loading products from BankMart systems...</div>
         </div>
     </main>
 
-    <script>
-        const API_BASE_URL = 'http://localhost:8080/api';
+    <!-- ============================================================
+         COMPARE BAR: Appears when 2+ products are selected.
+    ============================================================ -->
+    <div id="compareBar" class="compare-bar">
+        <span id="compareCount">0 products selected</span>
+        <button onclick="openCompareModal()">Compare Now</button>
+        <button onclick="clearComparison()">Clear</button>
+    </div>
 
+    <!-- ============================================================
+         MODAL 1: Product Detail View
+         Shows full product information + a loan calculator if it's a Loan.
+    ============================================================ -->
+    <div id="detailModal" class="modal-overlay">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 class="modal-title" id="detailTitle">Product Details</h2>
+                <button class="close-btn" onclick="closeModal('detailModal')">&times;</button>
+            </div>
+            <span class="category-badge" id="detailCategory"></span>
+            <p id="detailDesc" style="color: var(--text-light); margin: 1rem 0;"></p>
+            <div class="detail-grid">
+                <div class="detail-item">
+                    <label>Brand</label>
+                    <span id="detailBrand">—</span>
+                </div>
+                <div class="detail-item">
+                    <label>Price / Annual Fee</label>
+                    <span id="detailPrice" class="detail-price">—</span>
+                </div>
+                <div class="detail-item">
+                    <label>Release Date</label>
+                    <span id="detailDate">—</span>
+                </div>
+                <div class="detail-item">
+                    <label>Availability</label>
+                    <span id="detailAvail">—</span>
+                </div>
+                <div class="detail-item">
+                    <label>Stock / Max Applications</label>
+                    <span id="detailStock">—</span>
+                </div>
+            </div>
+
+            <!-- LOAN CALCULATOR: Only visible for Loan category products -->
+            <div id="loanCalcSection" class="loan-calculator" style="display:none;">
+                <h4>📊 Repayment Calculator</h4>
+                <p style="font-size:0.85rem; color:var(--text-light); margin:0 0 0.75rem;">
+                    Estimate your monthly repayments based on the loan amount.
+                </p>
+                <div class="calc-row">
+                    <div class="form-group">
+                        <label>Loan Amount (AUD)</label>
+                        <input type="number" id="calcAmount" placeholder="e.g. 20000" oninput="calculateRepayment()">
+                    </div>
+                    <div class="form-group">
+                        <label>Term (months)</label>
+                        <input type="number" id="calcMonths" value="36" min="6" max="360" oninput="calculateRepayment()">
+                    </div>
+                    <div class="form-group">
+                        <label>Interest Rate %</label>
+                        <input type="number" id="calcRate" value="6.5" step="0.1" oninput="calculateRepayment()">
+                    </div>
+                </div>
+                <div class="calc-result" id="calcResult">
+                    Enter an amount above to see your estimate.
+                </div>
+            </div>
+
+            <button class="submit-btn" id="detailApplyBtn" onclick="openApplyFromDetail()">
+                Apply for This Product
+            </button>
+        </div>
+    </div>
+
+    <!-- ============================================================
+         MODAL 2: Eligibility Checker + Application Form
+         Step 1: Quick eligibility questions
+         Step 2: Full registration form
+    ============================================================ -->
+    <div id="applyModal" class="modal-overlay">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 class="modal-title">Apply Now</h2>
+                <button class="close-btn" onclick="closeModal('applyModal')">&times;</button>
+            </div>
+            <div id="product-context">
+                Applying for: <strong id="modalProductName"></strong>
+            </div>
+
+            <!-- STEP 1: Eligibility -->
+            <div id="eligibilityStep" class="eligibility-step">
+                <h4>Before we proceed — quick eligibility check:</h4>
+                <p style="font-size:0.9rem; color:var(--text-light);">Are you 18 or older?</p>
+                <div class="eligibility-opt">
+                    <label><input type="radio" name="age" value="yes"> <span>Yes, I am 18+</span></label>
+                    <label><input type="radio" name="age" value="no"> <span>No</span></label>
+                </div>
+                <p style="font-size:0.9rem; color:var(--text-light); margin-top:1rem;">Are you an Australian resident?</p>
+                <div class="eligibility-opt">
+                    <label><input type="radio" name="resident" value="yes"> <span>Yes</span></label>
+                    <label><input type="radio" name="resident" value="no"> <span>No</span></label>
+                </div>
+                <div id="eligibilityResult" style="margin-top:1rem;"></div>
+                <button class="submit-btn" onclick="checkEligibility()">Check My Eligibility</button>
+            </div>
+
+            <!-- STEP 2: Application Form (hidden until eligible) -->
+            <div id="applicationFormSection" style="display:none;">
+                <input type="hidden" id="productId">
+                <input type="hidden" id="productName">
+                <div class="form-group">
+                    <label for="customerName">Full Name</label>
+                    <input type="text" id="customerName" required>
+                </div>
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="phone">Phone Number</label>
+                    <input type="tel" id="phone" required>
+                </div>
+                <div class="form-group">
+                    <label for="address">Mailing Address</label>
+                    <input type="text" id="address" required>
+                </div>
+                <button class="submit-btn" id="submitBtn" onclick="submitApplication()">
+                    Submit Application
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================
+         MODAL 3: Product Comparison Table
+         Shows selected products side by side in a table.
+    ============================================================ -->
+    <div id="compareModal" class="modal-overlay">
+        <div class="modal modal-wide">
+            <div class="modal-header">
+                <h2 class="modal-title">Product Comparison</h2>
+                <button class="close-btn" onclick="closeModal('compareModal')">&times;</button>
+            </div>
+            <div id="compareTableContainer" style="overflow-x:auto;"></div>
+        </div>
+    </div>
+
+    <!-- ============================================================
+         JAVASCRIPT — This is where the app logic lives.
+         Think of it in sections:
+           1. State (data the app holds in memory)
+           2. Functions that talk to the backend (fetch calls)
+           3. Functions that update the UI (render functions)
+           4. Modal / form logic
+    ============================================================ */
+    <script>
+        // === 1. STATE ===
+        // allProducts stores everything fetched from the backend so
+        // we can filter locally without making a new network request.
+        const API_BASE_URL = 'http://localhost:8080/api';
+        let allProducts = [];
+        let currentProduct = null;   // Product currently being viewed/applied for
+        let compareList = [];        // Products selected for comparison (max 3)
+
+        // === 2. STARTUP ===
         document.addEventListener('DOMContentLoaded', () => {
             loadProducts();
         });
 
-        function handleKeyPress(e) {
-            if (e.key === 'Enter') {
-                searchProducts();
-            }
-        }
-
+        // === 3. UTILITY FUNCTIONS ===
         function formatCurrency(amount) {
             return new Intl.NumberFormat('en-AU', {
-                style: 'currency',
-                currency: 'AUD'
+                style: 'currency', currency: 'AUD'
             }).format(amount);
         }
 
+        function handleKeyPress(e) {
+            if (e.key === 'Enter') searchProducts();
+        }
+
+        // === 4. FETCH FROM BACKEND ===
+        // loadProducts() talks to GET /api/products and stores results in allProducts
+        function loadProducts() {
+            setFilterActive('All');
+            document.getElementById('sectionTitle').textContent = 'All Products';
+            document.getElementById('searchInput').value = '';
+            document.getElementById('productGrid').innerHTML =
+                '<div class="loader">Loading products from BankMart systems...</div>';
+
+            fetch(`${API_BASE_URL}/products`)
+                .then(res => { if (!res.ok) throw new Error(); return res.json(); })
+                .then(data => {
+                    allProducts = data;
+                    renderProducts(allProducts);
+                })
+                .catch(() => {
+                    document.getElementById('productGrid').innerHTML =
+                        '<div class="error-message">Could not connect to BankMart API. Ensure the Spring Boot backend is running.</div>';
+                });
+        }
+
+        // searchProducts() talks to GET /api/products/search?keyword=...
+        function searchProducts() {
+            const keyword = document.getElementById('searchInput').value.trim();
+            if (!keyword) { loadProducts(); return; }
+
+            document.getElementById('sectionTitle').textContent = `Results for "${keyword}"`;
+            document.getElementById('productGrid').innerHTML = '<div class="loader">Searching...</div>';
+
+            fetch(`${API_BASE_URL}/products/search?keyword=${encodeURIComponent(keyword)}`)
+                .then(res => { if (!res.ok) throw new Error(); return res.json(); })
+                .then(data => renderProducts(data))
+                .catch(() => {
+                    document.getElementById('productGrid').innerHTML =
+                        '<div class="error-message">Error executing search.</div>';
+                });
+        }
+
+        // === 5. CATEGORY FILTER ===
+        // Filters allProducts array locally — no new network call needed.
+        function filterByCategory(category, btn) {
+            setFilterActive(category);
+            document.getElementById('sectionTitle').textContent =
+                category === 'All' ? 'All Products' : `${category} Products`;
+            const filtered = category === 'All'
+                ? allProducts
+                : allProducts.filter(p => p.category === category);
+            renderProducts(filtered);
+        }
+
+        function setFilterActive(category) {
+            document.querySelectorAll('.filter-btn').forEach(b => {
+                b.classList.toggle('active', b.textContent === category);
+            });
+        }
+
+        // === 6. RENDER PRODUCTS (build product cards in HTML) ===
         function renderProducts(products) {
             const grid = document.getElementById('productGrid');
             grid.innerHTML = '';
+            document.getElementById('productCount').textContent = `${products.length} product(s)`;
 
             if (products.length === 0) {
-                grid.innerHTML = '<div class="loader">No products found matching your search.</div>';
+                grid.innerHTML = '<div class="loader">No products found.</div>';
                 return;
             }
 
             products.forEach(product => {
                 const card = document.createElement('div');
                 card.className = 'product-card';
+
+                // Whether this product is in the compare list
+                const isComparing = compareList.some(p => p.id === product.id);
+
                 card.innerHTML = `
                     <div class="product-content">
                         <span class="category-badge">${product.category}</span>
                         <h3 class="product-title">${product.name}</h3>
                         <p class="product-desc">${product.description}</p>
-                        
                         <div class="product-footer">
                             <div class="price">${product.price > 0 ? formatCurrency(product.price) : 'No Fee'}</div>
-                            <div class="stock-info">Inst: ${product.stockQuantity}</div>
+                            <div class="stock-info">Available: ${product.stockQuantity}</div>
                         </div>
+                        <div class="card-actions">
+                            <button class="btn-details" onclick="openDetailModal(${product.id})">View Details</button>
+                            <button class="btn-apply" onclick="openApplyModal(${product.id})">Apply Now</button>
+                        </div>
+                    </div>
+                    <div class="compare-row">
+                        <input type="checkbox" id="cmp-${product.id}"
+                            ${isComparing ? 'checked' : ''}
+                            onchange="toggleCompare(${product.id}, this.checked)">
+                        <label for="cmp-${product.id}">Add to Compare</label>
                     </div>
                 `;
                 grid.appendChild(card);
             });
         }
 
-        function loadProducts() {
-            document.getElementById('sectionTitle').textContent = 'All Products';
-            document.getElementById('searchInput').value = '';
-            document.getElementById('productGrid').innerHTML = '<div class="loader">Loading products from BankMart systems...</div>';
-            
-            fetch(`${API_BASE_URL}/products`)
-                .then(response => {
-                    if (!response.ok) throw new Error('Network response was not ok');
-                    return response.json();
-                })
-                .then(data => renderProducts(data))
-                .catch(error => {
-                    console.error('Error fetching products:', error);
-                    document.getElementById('productGrid').innerHTML = 
-                        '<div class="error-message">Error connecting to the BankMart API. Please ensure the backend is running on localhost:8080.</div>';
-                });
+        // === 7. PRODUCT DETAIL MODAL ===
+        function openDetailModal(productId) {
+            const product = allProducts.find(p => p.id === productId);
+            if (!product) return;
+            currentProduct = product;
+
+            document.getElementById('detailTitle').textContent = product.name;
+            document.getElementById('detailCategory').textContent = product.category;
+            document.getElementById('detailDesc').textContent = product.description;
+            document.getElementById('detailBrand').textContent = product.brand || '—';
+            document.getElementById('detailPrice').textContent =
+                product.price > 0 ? formatCurrency(product.price) : 'No Fee';
+            document.getElementById('detailDate').textContent = product.releaseDate || '—';
+            document.getElementById('detailAvail').textContent = product.available ? '✅ Available' : '❌ Unavailable';
+            document.getElementById('detailStock').textContent = product.stockQuantity;
+
+            // Show loan calculator only if category is Loans
+            const isLoan = product.category === 'Loans';
+            document.getElementById('loanCalcSection').style.display = isLoan ? 'block' : 'none';
+            if (isLoan) {
+                document.getElementById('calcAmount').value = product.price || '';
+                calculateRepayment();
+            }
+
+            openModal('detailModal');
         }
 
-        function searchProducts() {
-            const keyword = document.getElementById('searchInput').value.trim();
-            
-            if (!keyword) {
-                loadProducts();
+        // Loan repayment calculator — simple formula: monthly = P * r*(1+r)^n / ((1+r)^n - 1)
+        function calculateRepayment() {
+            const P = parseFloat(document.getElementById('calcAmount').value);
+            const n = parseInt(document.getElementById('calcMonths').value);
+            const annualRate = parseFloat(document.getElementById('calcRate').value);
+            const r = annualRate / 100 / 12;
+
+            const el = document.getElementById('calcResult');
+            if (!P || !n || !annualRate || P <= 0 || n <= 0) {
+                el.innerHTML = 'Enter valid values above.';
+                return;
+            }
+            const monthly = (r === 0)
+                ? P / n
+                : P * (r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1);
+            const total = monthly * n;
+            el.innerHTML = `Estimated monthly repayment: <strong>${formatCurrency(monthly)}</strong>
+                <br><small style="color:var(--text-light);">Total repayment: ${formatCurrency(total)} over ${n} months</small>`;
+        }
+
+        function openApplyFromDetail() {
+            closeModal('detailModal');
+            if (currentProduct) openApplyModal(currentProduct.id);
+        }
+
+        // === 8. ELIGIBILITY CHECKER + APPLICATION FORM ===
+        function openApplyModal(productId) {
+            const product = allProducts.find(p => p.id === productId);
+            if (!product) return;
+            currentProduct = product;
+
+            // Reset the form back to step 1 (eligibility)
+            document.getElementById('eligibilityStep').style.display = 'block';
+            document.getElementById('applicationFormSection').style.display = 'none';
+            document.getElementById('eligibilityResult').innerHTML = '';
+            document.querySelectorAll('input[name="age"], input[name="resident"]')
+                .forEach(r => r.checked = false);
+
+            document.getElementById('modalProductName').textContent = product.name;
+            document.getElementById('productId').value = product.id;
+            document.getElementById('productName').value = product.name;
+
+            openModal('applyModal');
+        }
+
+        function checkEligibility() {
+            const age = document.querySelector('input[name="age"]:checked')?.value;
+            const resident = document.querySelector('input[name="resident"]:checked')?.value;
+            const resultEl = document.getElementById('eligibilityResult');
+
+            if (!age || !resident) {
+                resultEl.innerHTML = '<div class="ineligible-msg">Please answer both questions above.</div>';
                 return;
             }
 
-            document.getElementById('sectionTitle').textContent = `Search Results for "${keyword}"`;
-            document.getElementById('productGrid').innerHTML = '<div class="loader">Searching...</div>';
-
-            fetch(`${API_BASE_URL}/products/search?keyword=${encodeURIComponent(keyword)}`)
-                .then(response => {
-                    if (!response.ok) throw new Error('Network response was not ok');
-                    return response.json();
-                })
-                .then(data => renderProducts(data))
-                .catch(error => {
-                    console.error('Error searching products:', error);
-                    document.getElementById('productGrid').innerHTML = 
-                        '<div class="error-message">Error executing search. Ensure the backend is running.</div>';
-                });
+            if (age === 'yes' && resident === 'yes') {
+                resultEl.innerHTML = '<div style="background:#d1fae5;color:#065f46;padding:0.75rem;border-radius:8px;">✅ Great! You appear eligible. Please fill in your details below.</div>';
+                setTimeout(() => {
+                    document.getElementById('eligibilityStep').style.display = 'none';
+                    document.getElementById('applicationFormSection').style.display = 'block';
+                }, 1200);
+            } else {
+                resultEl.innerHTML = `<div class="ineligible-msg">
+                    ❌ Unfortunately, this product requires applicants to be 18+ and Australian residents.
+                    <br><small>You may still browse our other products.</small>
+                </div>`;
+            }
         }
+
+        function submitApplication() {
+            const btn = document.getElementById('submitBtn');
+            const formData = {
+                productId: document.getElementById('productId').value,
+                productName: document.getElementById('productName').value,
+                customerName: document.getElementById('customerName').value,
+                email: document.getElementById('email').value,
+                phone: document.getElementById('phone').value,
+                address: document.getElementById('address').value
+            };
+
+            if (!formData.customerName || !formData.email || !formData.phone || !formData.address) {
+                alert('Please fill in all fields.');
+                return;
+            }
+
+            btn.textContent = 'Submitting...';
+            btn.disabled = true;
+
+            fetch(`${API_BASE_URL}/applications`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(formData)
+            })
+            .then(res => { if (!res.ok) throw new Error(); return res.json(); })
+            .then(data => {
+                closeModal('applyModal');
+                alert(`✅ Application submitted! Your Application ID is #${data.id}.\n\nTrack your status at /status.html using your email.`);
+                document.getElementById('applicationFormSection').reset?.();
+            })
+            .catch(() => alert('Error submitting application. Please try again.'))
+            .finally(() => { btn.textContent = 'Submit Application'; btn.disabled = false; });
+        }
+
+        // === 9. PRODUCT COMPARISON ===
+        function toggleCompare(productId, checked) {
+            if (checked) {
+                if (compareList.length >= 3) {
+                    alert('You can compare up to 3 products at a time.');
+                    // Uncheck the box
+                    document.getElementById(`cmp-${productId}`).checked = false;
+                    return;
+                }
+                const product = allProducts.find(p => p.id === productId);
+                if (product) compareList.push(product);
+            } else {
+                compareList = compareList.filter(p => p.id !== productId);
+            }
+            updateCompareBar();
+        }
+
+        function updateCompareBar() {
+            const bar = document.getElementById('compareBar');
+            const count = compareList.length;
+            document.getElementById('compareCount').textContent = `${count} product${count !== 1 ? 's' : ''} selected`;
+            bar.classList.toggle('visible', count >= 2);
+        }
+
+        function clearComparison() {
+            compareList = [];
+            updateCompareBar();
+            // Uncheck all checkboxes
+            document.querySelectorAll('[id^="cmp-"]').forEach(cb => cb.checked = false);
+        }
+
+        function openCompareModal() {
+            const container = document.getElementById('compareTableContainer');
+            const fields = [
+                { label: 'Category', key: 'category' },
+                { label: 'Brand', key: 'brand' },
+                { label: 'Price / Fee', fn: p => p.price > 0 ? formatCurrency(p.price) : 'No Fee' },
+                { label: 'Description', key: 'description' },
+                { label: 'Stock', key: 'stockQuantity' },
+                { label: 'Release Date', key: 'releaseDate' },
+                { label: 'Available', fn: p => p.available ? '✅ Yes' : '❌ No' },
+            ];
+
+            let html = '<table class="compare-table"><thead><tr><th>Feature</th>';
+            compareList.forEach(p => { html += `<th>${p.name}</th>`; });
+            html += '</tr></thead><tbody>';
+
+            fields.forEach(field => {
+                html += `<tr><td><strong>${field.label}</strong></td>`;
+                compareList.forEach(p => {
+                    const val = field.fn ? field.fn(p) : (p[field.key] ?? '—');
+                    html += `<td>${val}</td>`;
+                });
+                html += '</tr>';
+            });
+
+            // Apply row at the bottom
+            html += '<tr><td><strong>Action</strong></td>';
+            compareList.forEach(p => {
+                html += `<td><button class="btn-apply" onclick="closeModal('compareModal'); openApplyModal(${p.id})">Apply</button></td>`;
+            });
+            html += '</tr></tbody></table>';
+
+            container.innerHTML = html;
+            openModal('compareModal');
+        }
+
+        // === 10. MODAL UTILITIES ===
+        function openModal(id) {
+            document.getElementById(id).classList.add('open');
+        }
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('open');
+        }
+        // Close any modal by clicking the dark backdrop
+        document.querySelectorAll('.modal-overlay').forEach(overlay => {
+            overlay.addEventListener('click', (e) => {
+                if (e.target === overlay) overlay.classList.remove('open');
+            });
+        });
     </script>
 </body>
 </html>
