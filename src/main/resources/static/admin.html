@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BankMart — Admin Dashboard</title>
+    <style>
+        :root {
+            --primary: #004d99;
+            --secondary: #e6f0fa;
+            --text-dark: #333333;
+            --text-light: #666666;
+            --background: #f0f4f8;
+            --white: #ffffff;
+            --accent: #2e8b57;
+            --danger: #b91c1c;
+        }
+        * { box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            margin: 0; background-color: var(--background); color: var(--text-dark);
+        }
+        header {
+            background-color: #1a1a2e; color: var(--white);
+            padding: 1.2rem 2rem; display: flex;
+            justify-content: space-between; align-items: center;
+        }
+        header h1 { margin: 0; font-size: 1.5rem; }
+        header nav a {
+            color: rgba(255,255,255,0.7); text-decoration: none;
+            margin-left: 1.5rem; font-size: 0.9rem;
+        }
+        header nav a:hover { color: white; }
+
+        main { padding: 2rem; max-width: 1300px; margin: 0 auto; }
+        h2 { color: var(--primary); }
+
+        /* Stats row */
+        .stats-row {
+            display: flex; gap: 1.5rem; margin-bottom: 2rem; flex-wrap: wrap;
+        }
+        .stat-card {
+            background: var(--white); border-radius: 12px;
+            padding: 1.5rem 2rem; flex: 1; min-width: 150px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            border-top: 4px solid var(--primary); text-align: center;
+        }
+        .stat-card .number { font-size: 2.5rem; font-weight: 700; color: var(--primary); }
+        .stat-card .label { font-size: 0.85rem; color: var(--text-light); margin-top: 0.25rem; }
+
+        /* Table */
+        .table-wrapper {
+            background: var(--white); border-radius: 12px;
+            overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            overflow-x: auto;
+        }
+        table { width: 100%; border-collapse: collapse; }
+        thead { background-color: #1a1a2e; color: white; }
+        th { padding: 1rem; text-align: left; font-size: 0.85rem; text-transform: uppercase; }
+        td { padding: 1rem; border-bottom: 1px solid #edf2f7; font-size: 0.9rem; }
+        tr:last-child td { border-bottom: none; }
+        tr:nth-child(even) { background-color: #f8fafc; }
+
+        /* Status badge */
+        .status-badge {
+            padding: 0.3rem 0.75rem; border-radius: 20px;
+            font-size: 0.78rem; font-weight: 700;
+            text-transform: uppercase; letter-spacing: 0.5px;
+        }
+        .status-PENDING_PAYMENT  { background: #fef3c7; color: #92400e; }
+        .status-APPROVED  { background: #d1fae5; color: #065f46; }
+        .status-REJECTED  { background: #fee2e2; color: #b91c1c; }
+        .status-UNDER_REVIEW { background: #ede9fe; color: #5b21b6; }
+
+        /* Status dropdown */
+        .status-select {
+            padding: 0.4rem 0.6rem;
+            border: 1px solid #cbd5e0; border-radius: 6px;
+            font-size: 0.85rem; cursor: pointer;
+        }
+        .update-btn {
+            padding: 0.35rem 0.75rem;
+            background-color: var(--primary); color: white;
+            border: none; border-radius: 6px;
+            cursor: pointer; font-size: 0.82rem;
+            margin-left: 0.5rem; transition: background 0.2s;
+        }
+        .update-btn:hover { background-color: #003d7a; }
+
+        .loader { text-align: center; padding: 3rem; color: var(--text-light); }
+        .refresh-btn {
+            padding: 0.5rem 1.2rem;
+            background: var(--primary); color: white;
+            border: none; border-radius: 8px; cursor: pointer;
+            font-weight: bold; margin-bottom: 1.5rem;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>⚙️ BankMart Admin</h1>
+        <nav>
+            <a href="/index.html">← Product Catalog</a>
+            <a href="/status.html">Status Tracker</a>
+        </nav>
+    </header>
+
+    <main>
+        <h2>Application Dashboard</h2>
+
+        <!-- Summary stats, filled in by JavaScript -->
+        <div class="stats-row" id="statsRow">
+            <div class="stat-card"><div class="number" id="totalCount">—</div><div class="label">Total Applications</div></div>
+            <div class="stat-card"><div class="number" id="pendingCount">—</div><div class="label">Pending Payment</div></div>
+            <div class="stat-card"><div class="number" id="approvedCount">—</div><div class="label">Approved</div></div>
+            <div class="stat-card"><div class="number" id="rejectedCount">—</div><div class="label">Rejected</div></div>
+        </div>
+
+        <button class="refresh-btn" onclick="loadApplications()">🔄 Refresh</button>
+
+        <div class="table-wrapper">
+            <!-- Table built dynamically by JavaScript -->
+            <div id="tableArea" class="loader">Loading applications...</div>
+        </div>
+    </main>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:8080/api';
+
+        // Load all applications when the page opens
+        document.addEventListener('DOMContentLoaded', loadApplications);
+
+        function loadApplications() {
+            document.getElementById('tableArea').innerHTML = '<div class="loader">Loading applications...</div>';
+
+            fetch(`${API_BASE_URL}/applications`)
+                .then(res => { if (!res.ok) throw new Error(); return res.json(); })
+                .then(apps => {
+                    updateStats(apps);
+                    renderTable(apps);
+                })
+                .catch(() => {
+                    document.getElementById('tableArea').innerHTML =
+                        '<div class="loader" style="color:#b91c1c;">Could not load applications. Is the backend running?</div>';
+                });
+        }
+
+        function updateStats(apps) {
+            document.getElementById('totalCount').textContent = apps.length;
+            document.getElementById('pendingCount').textContent =
+                apps.filter(a => a.status === 'PENDING_PAYMENT').length;
+            document.getElementById('approvedCount').textContent =
+                apps.filter(a => a.status === 'APPROVED').length;
+            document.getElementById('rejectedCount').textContent =
+                apps.filter(a => a.status === 'REJECTED').length;
+        }
+
+        function renderTable(apps) {
+            if (apps.length === 0) {
+                document.getElementById('tableArea').innerHTML =
+                    '<div class="loader">No applications yet.</div>';
+                return;
+            }
+
+            let html = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Customer Name</th>
+                            <th>Email</th>
+                            <th>Phone</th>
+                            <th>Product</th>
+                            <th>Submitted</th>
+                            <th>Status</th>
+                            <th>Update Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            apps.forEach(app => {
+                html += `
+                    <tr>
+                        <td>#${app.id}</td>
+                        <td>${app.customerName}</td>
+                        <td>${app.email}</td>
+                        <td>${app.phone}</td>
+                        <td>${app.productName}</td>
+                        <td>${app.createdAt || '—'}</td>
+                        <td>
+                            <span class="status-badge status-${app.status}">
+                                ${app.status.replace(/_/g, ' ')}
+                            </span>
+                        </td>
+                        <td>
+                            <select class="status-select" id="sel-${app.id}">
+                                <option value="PENDING_PAYMENT" ${app.status === 'PENDING_PAYMENT' ? 'selected' : ''}>Pending Payment</option>
+                                <option value="UNDER_REVIEW" ${app.status === 'UNDER_REVIEW' ? 'selected' : ''}>Under Review</option>
+                                <option value="APPROVED" ${app.status === 'APPROVED' ? 'selected' : ''}>Approved</option>
+                                <option value="REJECTED" ${app.status === 'REJECTED' ? 'selected' : ''}>Rejected</option>
+                            </select>
+                            <button class="update-btn" onclick="updateStatus(${app.id})">Save</button>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            html += '</tbody></table>';
+            document.getElementById('tableArea').innerHTML = html;
+        }
+
+        // Send a PUT request to update the application status
+        function updateStatus(id) {
+            const newStatus = document.getElementById(`sel-${id}`).value;
+
+            fetch(`${API_BASE_URL}/applications/${id}/status`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ status: newStatus })
+            })
+            .then(res => { if (!res.ok) throw new Error(); return res.json(); })
+            .then(() => {
+                // Reload the whole table to reflect the new state
+                loadApplications();
+            })
+            .catch(() => alert('Error updating status. Please try again.'));
+        }
+    </script>
+</body>
+</html>
